@@ -61,19 +61,51 @@ public class DateHandler {
         return Days.daysBetween(start.withTimeAtStartOfDay() , end.withTimeAtStartOfDay() ).getDays();
     }
 
-    public static int getYear() {
+    public static int getCurrentYear() {
         return todayDate.getYear();
     }
 
-    public static int getMonth() {
+    public static int getCurrentMonth() {
         return todayDate.getMonthOfYear();
     }
 
-    public static int getDay() {
+    public static int getCurrentDay() {
         return todayDate.getDayOfMonth();
     }
 
-    public static int getHour() {
+    public static int getCurrentHour() {
         return todayDateTime.getHourOfDay();
+    }
+
+    public static int getCurrentMinute() {
+        return todayDateTime.getMinuteOfHour();
+    }
+
+    public static int getCurrentSecond() {
+        return todayDateTime.getSecondOfMinute();
+    }
+
+    public static int getCurrentYear(DateTimeZone zone) {
+        return new DateTime(zone).getYear();
+    }
+
+    public static int getCurrentMonth(DateTimeZone zone) {
+        return new DateTime(zone).getMonthOfYear();
+    }
+
+    public static int getCurrentDay(DateTimeZone zone) {
+        return new DateTime(zone).getDayOfMonth();
+    }
+
+    public static int getCurrentHour(DateTimeZone zone) {
+        return new DateTime(zone).getHourOfDay();
+    }
+
+    public static int getCurrentMinute(DateTimeZone zone) {
+        return new DateTime(zone).getMinuteOfHour();
+    }
+
+    public static int getCurrentSecond(DateTimeZone zone) {
+        return new DateTime(zone).getSecondOfMinute();
     }
 }
