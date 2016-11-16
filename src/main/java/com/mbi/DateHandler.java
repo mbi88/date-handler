@@ -1,6 +1,7 @@
 package com.mbi;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -12,8 +13,8 @@ public class DateHandler {
 
     private static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
     private static DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
-    private static DateTime todayDate = new DateTime();
-    private static DateTime todayDateTime = new DateTime();
+    private static DateTime todayDate = new DateTime(DateTimeZone.UTC);
+    private static DateTime todayDateTime = new DateTime(DateTimeZone.UTC);
 
     public static String todayPlus(int plusDays) {
         return dateFormatter.print(todayDate.plusDays(plusDays));
