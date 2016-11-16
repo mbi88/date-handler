@@ -10,47 +10,69 @@ import org.joda.time.format.DateTimeFormatter;
  */
 public class DateHandler {
 
-    private static DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd");
-    private static DateTime now = new DateTime();
+    private static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+    private static DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+    private static DateTime todayDate = new DateTime();
+    private static DateTime todayDateTime = new DateTime();
 
     public static String todayPlus(int plusDays) {
-        return formatter.print(now.plusDays(plusDays));
+        return dateFormatter.print(todayDate.plusDays(plusDays));
     }
 
     public static String plusDaysToDate(String date, int plusDays) {
-        DateTime dateTime = formatter.parseDateTime(date);
+        DateTime dateTime = dateFormatter.parseDateTime(date);
 
-        return formatter.print(dateTime.plusDays(plusDays));
+        return dateFormatter.print(dateTime.plusDays(plusDays));
     }
 
     public static String minusDaysToDate(String date, int minusDays) {
-        DateTime dateTime = formatter.parseDateTime(date);
+        DateTime dateTime = dateFormatter.parseDateTime(date);
 
-        return formatter.print(dateTime.minusDays(minusDays));
+        return dateFormatter.print(dateTime.minusDays(minusDays));
     }
 
     public static String todayMinus(int minusDays) {
-        return formatter.print(now.minusDays(minusDays));
+        return dateFormatter.print(todayDate.minusDays(minusDays));
     }
 
     public static String todayMinus(int minusDays, int minusMonths) {
-        return formatter.print(now.minusDays(minusDays).minusMonths(minusMonths));
+        return dateFormatter.print(todayDate.minusDays(minusDays).minusMonths(minusMonths));
     }
 
-    public static String today() {
-        return formatter.print(now);
+    public static String getTodayDate() {
+        return dateFormatter.print(todayDate);
+    }
+
+    public static String getTodayDateTime() {
+        return dateTimeFormatter.print(todayDateTime);
     }
 
     public static String getDayOfWeek(String dt) {
-        DateTime dateTime = formatter.parseDateTime(dt);
+        DateTime dateTime = dateFormatter.parseDateTime(dt);
 
         return dateTime.dayOfWeek().getAsText();
     }
 
     public static int daysBetweenDates(String date1, String date2) {
-        DateTime start = formatter.parseDateTime(date1);
-        DateTime end = formatter.parseDateTime(date2);
+        DateTime start = dateFormatter.parseDateTime(date1);
+        DateTime end = dateFormatter.parseDateTime(date2);
 
         return Days.daysBetween(start.withTimeAtStartOfDay() , end.withTimeAtStartOfDay() ).getDays();
+    }
+
+    public static int getYear() {
+        return todayDate.getYear();
+    }
+
+    public static int getMonth() {
+        return todayDate.getMonthOfYear();
+    }
+
+    public static int getDay() {
+        return todayDate.getDayOfMonth();
+    }
+
+    public static int getHour() {
+        return todayDateTime.getHourOfDay();
     }
 }
