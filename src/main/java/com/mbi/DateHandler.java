@@ -44,8 +44,16 @@ public class DateHandler {
         return dateFormatter.print(todayDate);
     }
 
+    public static String getTodayDate(DateTimeZone zone) {
+        return dateFormatter.print(new DateTime(zone));
+    }
+
     public static String getTodayDateTime() {
         return dateTimeFormatter.print(todayDateTime);
+    }
+
+    public static String getTodayDateTime(DateTimeZone zone) {
+        return dateTimeFormatter.print(new DateTime(zone));
     }
 
     public static String getDayOfWeek(String dt) {
