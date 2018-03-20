@@ -7,113 +7,237 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 /**
- * Created by mbi on 10/27/16.
+ * Different operations with date time.
  */
-public class DateHandler {
+public final class DateHandler {
 
-    private static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
-    private static DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
-    private static DateTime todayDate = new DateTime(DateTimeZone.UTC);
-    private static DateTime todayDateTime = new DateTime(DateTimeZone.UTC);
+    /**
+     * Date Pattern.
+     */
+    private final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
 
-    public static String todayPlus(int plusDays) {
-        return dateFormatter.print(todayDate.plusDays(plusDays));
+    /**
+     * Date time pattern.
+     */
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+    /**
+     * Time zone.
+     */
+    private final DateTimeZone dateTimeZone;
+
+    /**
+     * Constructor with time zone.
+     *
+     * @param dateTimeZone time zone.
+     */
+    public DateHandler(final DateTimeZone dateTimeZone) {
+        this.dateTimeZone = dateTimeZone;
     }
 
-    public static String plusDaysToDate(String date, int plusDays) {
-        DateTime dateTime = dateFormatter.parseDateTime(date);
-
-        return dateFormatter.print(dateTime.plusDays(plusDays));
+    /**
+     * Constructor with default time zone UTC.
+     */
+    public DateHandler() {
+        this.dateTimeZone = DateTimeZone.UTC;
     }
 
-    public static String minusDaysToDate(String date, int minusDays) {
-        DateTime dateTime = dateFormatter.parseDateTime(date);
-
-        return dateFormatter.print(dateTime.minusDays(minusDays));
+    /**
+     * Returns current date in format 'yyyy-MM-dd' according to passed time zone.
+     *
+     * @return current date.
+     */
+    public String getCurrentDate() {
+        final DateTime dateTime = new DateTime(dateTimeZone);
+        return dateFormatter.print(dateTime);
     }
 
-    public static String todayMinus(int minusDays) {
-        return dateFormatter.print(todayDate.minusDays(minusDays));
+    /**
+     * Returns current date time in format 'yyyy-MM-dd'T'HH:mm:ss' according to passed time zone.
+     *
+     * @return current date time.
+     */
+    public String getCurrentDateTime() {
+        final DateTime dateTime = new DateTime(dateTimeZone);
+        return dateTimeFormatter.print(dateTime);
     }
 
-    public static String todayMinus(int minusDays, int minusMonths) {
-        return dateFormatter.print(todayDate.minusDays(minusDays).minusMonths(minusMonths));
+    /**
+     * Returns current day of week as a text in full format.
+     *
+     * @return day of week.
+     */
+    public String getDayOfWeek() {
+        return new DateTime(dateTimeZone).dayOfWeek().getAsText();
     }
 
-    public static String getTodayDate() {
-        return dateFormatter.print(todayDate);
+    /**
+     * Returns day of week for passed date as a text in full format.
+     *
+     * @param date date.
+     * @return day of week.
+     */
+    public String getDayOfWeek(final String date) {
+        return dateFormatter.parseDateTime(date).dayOfWeek().getAsText();
     }
 
-    public static String getTodayDate(DateTimeZone zone) {
-        return dateFormatter.print(new DateTime(zone));
+    /**
+     * Count of days between two dates.
+     *
+     * @param startDate 1st date.
+     * @param endDate   2nd date
+     * @return the absolute value of 1st date minus 2nd.
+     */
+    public int daysBetweenDates(final String startDate, final String endDate) {
+        final DateTime start = dateFormatter.parseDateTime(startDate);
+        final DateTime end = dateFormatter.parseDateTime(endDate);
+
+        return Math.abs(Days.daysBetween(start.withTimeAtStartOfDay(), end.withTimeAtStartOfDay()).getDays());
     }
 
-    public static String getTodayDateTime() {
-        return dateTimeFormatter.print(todayDateTime);
+    /**
+     * Adds some period of time to current date. Time period should be in format e.g.: "1y2M3d4h5m6s"
+     * Where:
+     * 1y - one year.
+     * 2M - two months.
+     * 3d - three days.
+     * 4h - four hours.
+     * 5m - 5 minutes.
+     * 6s - 6 seconds.
+     * Example: current date time = "2017-01-01T12:00:00", formula = "3d5m", method will return "2017-01-04T12:05:00".
+     *
+     * @param formula period formula.
+     * @return updated date time.
+     * @throws IllegalArgumentException if formula does not start with digit or does not end with letter or if time
+     *                                  period if unknown.
+     */
+    public String plus(final String formula) {
+        final CustomDateTime dt = new DateTimeParser().parse(formula);
+        final DateTimeFormatter resultFormatter = isDate(dt) ? dateFormatter : dateTimeFormatter;
+        final DateTime dateTime = new DateTime(dateTimeZone);
+
+        return resultFormatter.print(dateTime
+                .plusYears(dt.getY())
+                .plusMonths(dt.getMo())
+                .plusDays(dt.getD())
+                .plusHours(dt.getH())
+                .plusMinutes(dt.getM())
+                .plusSeconds(dt.getS()));
     }
 
-    public static String getTodayDateTime(DateTimeZone zone) {
-        return dateTimeFormatter.print(new DateTime(zone));
+    /**
+     * Adds some period of time to passed date. Time period should be in format e.g.: "1y2M3d4h5m6s"
+     * Where:
+     * 1y - one year.
+     * 2M - two months.
+     * 3d - three days.
+     * 4h - four hours.
+     * 5m - 5 minutes.
+     * 6s - 6 seconds.
+     * Example: passed date time = "2017-01-01T12:00:00", formula = "3d5m", method will return "2017-01-04T12:05:00".
+     *
+     * @param formula period formula.
+     * @param start   date to add time period to.
+     * @return updated date time.
+     * @throws IllegalArgumentException if formula does not start with digit or does not end with letter or if time
+     *                                  period if unknown.
+     */
+    public String plus(final String start, final String formula) {
+        final DateTimeFormatter startFormatter = isDate(start) ? dateFormatter : dateTimeFormatter;
+        final DateTime startDateTime = startFormatter.parseDateTime(start);
+
+        final CustomDateTime dt = new DateTimeParser().parse(formula);
+        final DateTimeFormatter resultFormatter = (isDate(dt) && isDate(start)) ? dateFormatter : dateTimeFormatter;
+
+        return resultFormatter.print(startDateTime
+                .plusYears(dt.getY())
+                .plusMonths(dt.getMo())
+                .plusDays(dt.getD())
+                .plusHours(dt.getH())
+                .plusMinutes(dt.getM())
+                .plusSeconds(dt.getS()));
     }
 
-    public static String getDayOfWeek(String dt) {
-        DateTime dateTime = dateFormatter.parseDateTime(dt);
+    /**
+     * Subtracts some period of time from current date. Time period should be in format e.g.: "1y2M3d4h5m6s"
+     * Where:
+     * 1y - one year.
+     * 2M - two months.
+     * 3d - three days.
+     * 4h - four hours.
+     * 5m - 5 minutes.
+     * 6s - 6 seconds.
+     * Example: current date time = "2017-01-04T12:00:00", formula = "3d5m", method will return "2017-01-01T11:55:00".
+     *
+     * @param formula period formula.
+     * @return updated date time.
+     * @throws IllegalArgumentException if formula does not start with digit or does not end with letter or if time
+     *                                  period if unknown.
+     */
+    public String minus(final String formula) {
+        final CustomDateTime dt = new DateTimeParser().parse(formula);
+        final DateTimeFormatter resultFormatter = isDate(dt) ? dateFormatter : dateTimeFormatter;
+        final DateTime dateTime = new DateTime(dateTimeZone);
 
-        return dateTime.dayOfWeek().getAsText();
+        return resultFormatter.print(dateTime
+                .minusYears(dt.getY())
+                .minusMonths(dt.getMo())
+                .minusDays(dt.getD())
+                .minusHours(dt.getH())
+                .minusMinutes(dt.getM())
+                .minusSeconds(dt.getS()));
     }
 
-    public static int daysBetweenDates(String date1, String date2) {
-        DateTime start = dateFormatter.parseDateTime(date1);
-        DateTime end = dateFormatter.parseDateTime(date2);
+    /**
+     * Subtracts some period of time from passed date. Time period should be in format e.g.: "1y2M3d4h5m6s"
+     * Where:
+     * 1y - one year.
+     * 2M - two months.
+     * 3d - three days.
+     * 4h - four hours.
+     * 5m - 5 minutes.
+     * 6s - 6 seconds.
+     * Example: passed date time = "2017-01-04T12:00:00", formula = "3d5m", method will return "2017-01-01T11:55:00".
+     *
+     * @param formula period formula.
+     * @param start   date to subtract time period from.
+     * @return updated date time.
+     * @throws IllegalArgumentException if formula does not start with digit or does not end with letter or if time
+     *                                  period if unknown.
+     */
+    public String minus(final String start, final String formula) {
+        final DateTimeFormatter startFormatter = isDate(start) ? dateFormatter : dateTimeFormatter;
+        final DateTime startDateTime = startFormatter.parseDateTime(start);
 
-        return Days.daysBetween(start.withTimeAtStartOfDay() , end.withTimeAtStartOfDay() ).getDays();
+        final CustomDateTime dt = new DateTimeParser().parse(formula);
+        final DateTimeFormatter resultFormatter = (isDate(dt) && isDate(start)) ? dateFormatter : dateTimeFormatter;
+
+        return resultFormatter.print(startDateTime
+                .minusYears(dt.getY())
+                .minusMonths(dt.getMo())
+                .minusDays(dt.getD())
+                .minusHours(dt.getH())
+                .minusMinutes(dt.getM())
+                .minusSeconds(dt.getS()));
     }
 
-    public static int getCurrentYear() {
-        return todayDate.getYear();
+    /**
+     * If passed date format matches expected.
+     *
+     * @param date date format for check.
+     * @return result of check.
+     */
+    private boolean isDate(final String date) {
+        return date.matches("^[0-9]{4}(-[0-9]{2}){2}$");
     }
 
-    public static int getCurrentMonth() {
-        return todayDate.getMonthOfYear();
-    }
-
-    public static int getCurrentDay() {
-        return todayDate.getDayOfMonth();
-    }
-
-    public static int getCurrentHour() {
-        return todayDateTime.getHourOfDay();
-    }
-
-    public static int getCurrentMinute() {
-        return todayDateTime.getMinuteOfHour();
-    }
-
-    public static int getCurrentSecond() {
-        return todayDateTime.getSecondOfMinute();
-    }
-
-    public static int getCurrentYear(DateTimeZone zone) {
-        return new DateTime(zone).getYear();
-    }
-
-    public static int getCurrentMonth(DateTimeZone zone) {
-        return new DateTime(zone).getMonthOfYear();
-    }
-
-    public static int getCurrentDay(DateTimeZone zone) {
-        return new DateTime(zone).getDayOfMonth();
-    }
-
-    public static int getCurrentHour(DateTimeZone zone) {
-        return new DateTime(zone).getHourOfDay();
-    }
-
-    public static int getCurrentMinute(DateTimeZone zone) {
-        return new DateTime(zone).getMinuteOfHour();
-    }
-
-    public static int getCurrentSecond(DateTimeZone zone) {
-        return new DateTime(zone).getSecondOfMinute();
+    /**
+     * If passed date time object contains hours or minutes or seconds.
+     *
+     * @param dt date time.
+     * @return result of check.
+     */
+    private boolean isDate(final CustomDateTime dt) {
+        return dt.getH() + dt.getM() + dt.getS() == 0;
     }
 }
