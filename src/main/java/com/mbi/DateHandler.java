@@ -6,10 +6,17 @@ import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import static org.testng.Assert.assertTrue;
+
 /**
  * Different operations with date time.
  */
 public final class DateHandler {
+
+    /**
+     * Invalid date time format error message.
+     */
+    private static final String INVALID_DATE_FORMAT_ERROR_MESSAGE = "Incorrect date format";
 
     /**
      * Date Pattern.
@@ -226,8 +233,23 @@ public final class DateHandler {
      *
      * @return current year.
      */
-    public int getCurrentYear() {
+    public int getYear() {
         return new DateTime(dateTimeZone).getYear();
+    }
+
+    /**
+     * Returns year from date.
+     *
+     * @param date date.
+     * @return year.
+     * @throws AssertionError if date format is incorrect.
+     */
+    public int getYear(final String date) {
+        assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
+
+        final DateTimeFormatter formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
+
+        return formatter.parseDateTime(date).getYear();
     }
 
     /**
@@ -235,8 +257,23 @@ public final class DateHandler {
      *
      * @return current month.
      */
-    public int getCurrentMonth() {
+    public int getMonth() {
         return new DateTime(dateTimeZone).getMonthOfYear();
+    }
+
+    /**
+     * Returns month from date.
+     *
+     * @param date date.
+     * @return month.
+     * @throws AssertionError if date format is incorrect.
+     */
+    public int getMonth(final String date) {
+        assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
+
+        final DateTimeFormatter formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
+
+        return formatter.parseDateTime(date).getMonthOfYear();
     }
 
     /**
@@ -244,8 +281,23 @@ public final class DateHandler {
      *
      * @return current day.
      */
-    public int getCurrentDay() {
+    public int getDay() {
         return new DateTime(dateTimeZone).getDayOfMonth();
+    }
+
+    /**
+     * Returns day from date.
+     *
+     * @param date date.
+     * @return day.
+     * @throws AssertionError if date format is incorrect.
+     */
+    public int getDay(final String date) {
+        assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
+
+        final DateTimeFormatter formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
+
+        return formatter.parseDateTime(date).getDayOfMonth();
     }
 
     /**
@@ -253,8 +305,23 @@ public final class DateHandler {
      *
      * @return current hour.
      */
-    public int getCurrentHour() {
+    public int getHour() {
         return new DateTime(dateTimeZone).getHourOfDay();
+    }
+
+    /**
+     * Returns hour from date.
+     *
+     * @param date date.
+     * @return hour.
+     * @throws AssertionError if date format is incorrect.
+     */
+    public int getHour(final String date) {
+        assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
+
+        final DateTimeFormatter formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
+
+        return formatter.parseDateTime(date).getHourOfDay();
     }
 
     /**
@@ -262,8 +329,23 @@ public final class DateHandler {
      *
      * @return current minute.
      */
-    public int getCurrentMinute() {
+    public int getMinute() {
         return new DateTime(dateTimeZone).getMinuteOfHour();
+    }
+
+    /**
+     * Returns minute from date.
+     *
+     * @param date date.
+     * @return minute.
+     * @throws AssertionError if date format is incorrect.
+     */
+    public int getMinute(final String date) {
+        assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
+
+        final DateTimeFormatter formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
+
+        return formatter.parseDateTime(date).getMinuteOfHour();
     }
 
     /**
@@ -271,8 +353,23 @@ public final class DateHandler {
      *
      * @return current second.
      */
-    public int getCurrentSecond() {
+    public int getSecond() {
         return new DateTime(dateTimeZone).getSecondOfMinute();
+    }
+
+    /**
+     * Returns second from date.
+     *
+     * @param date date.
+     * @return second.
+     * @throws AssertionError if date format is incorrect.
+     */
+    public int getSecond(final String date) {
+        assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
+
+        final DateTimeFormatter formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
+
+        return formatter.parseDateTime(date).getSecondOfMinute();
     }
 
     /**
@@ -293,5 +390,15 @@ public final class DateHandler {
      */
     private boolean isDate(final CustomDateTime dt) {
         return dt.getH() + dt.getM() + dt.getS() == 0;
+    }
+
+    /**
+     * If passed date time format matches expected.
+     *
+     * @param dateTime date time format for check.
+     * @return result of check.
+     */
+    private boolean isDateTime(final String dateTime) {
+        return dateTime.matches("^[0-9]{4}(-[0-9]{2}){2}T([0-9]{2}:){2}[0-9]{2}$");
     }
 }

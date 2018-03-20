@@ -156,32 +156,106 @@ public class DateHandlerTest {
     }
 
     @Test
-    public void testCurrentYear() {
-        assertEquals(date.getCurrentYear(), new DateTime(DateTimeZone.UTC).getYear());
+    public void testYear() {
+        assertEquals(date.getYear(), new DateTime(DateTimeZone.UTC).getYear());
+        assertEquals(date.getYear("2017-02-04T12:02:10"), 2017);
+        assertEquals(date.getYear("2017-02-04"), 2017);
+
+        boolean passed;
+        try {
+            date.getYear("2017-02-0");
+            date.getYear("2017-02-04T23");
+            passed = true;
+        } catch (AssertionError e) {
+            passed = false;
+        }
+        assertFalse(passed);
     }
 
     @Test
-    public void testCurrentMonth() {
-        assertEquals(date.getCurrentMonth(), new DateTime(DateTimeZone.UTC).getMonthOfYear());
+    public void testMonth() {
+        assertEquals(date.getMonth(), new DateTime(DateTimeZone.UTC).getMonthOfYear());
+        assertEquals(date.getMonth("2017-02-04T12:02:10"), 2);
+        assertEquals(date.getMonth("2017-02-04"), 2);
+
+        boolean passed;
+        try {
+            date.getMonth("2017-02-0");
+            date.getMonth("2017-02-04T23");
+            passed = true;
+        } catch (AssertionError e) {
+            passed = false;
+        }
+        assertFalse(passed);
     }
 
     @Test
-    public void testCurrentDay() {
-        assertEquals(date.getCurrentDay(), new DateTime(DateTimeZone.UTC).getDayOfMonth());
+    public void testDay() {
+        assertEquals(date.getDay(), new DateTime(DateTimeZone.UTC).getDayOfMonth());
+        assertEquals(date.getDay("2017-02-04T12:02:10"), 4);
+        assertEquals(date.getDay("2017-02-04"), 4);
+
+        boolean passed;
+        try {
+            date.getDay("2017-02-0");
+            date.getDay("2017-02-04T23");
+            passed = true;
+        } catch (AssertionError e) {
+            passed = false;
+        }
+        assertFalse(passed);
     }
 
     @Test
-    public void testCurrentHour() {
-        assertEquals(date.getCurrentHour(), new DateTime(DateTimeZone.UTC).getHourOfDay());
+    public void testHour() {
+        assertEquals(date.getHour(), new DateTime(DateTimeZone.UTC).getHourOfDay());
+        assertEquals(date.getHour("2017-02-04T12:02:10"), 12);
+        assertEquals(date.getHour("2017-02-04"), 0);
+
+        boolean passed;
+        try {
+            date.getHour("2017-02-0");
+            date.getHour("2017-02-04T23");
+            passed = true;
+        } catch (AssertionError e) {
+            passed = false;
+        }
+        assertFalse(passed);
     }
 
     @Test
-    public void testCurrentMinute() {
-        assertEquals(date.getCurrentMinute(), new DateTime(DateTimeZone.UTC).getMinuteOfHour());
+    public void testMinute() {
+        assertEquals(date.getMinute(), new DateTime(DateTimeZone.UTC).getMinuteOfHour());
+        assertEquals(date.getMinute("2017-02-04T12:02:10"), 2);
+        assertEquals(date.getMinute("2017-02-04"), 0);
+
+        boolean passed;
+        try {
+            date.getMinute("2017-02-0");
+            date.getMinute("2017-02-04T23");
+            passed = true;
+        } catch (AssertionError e) {
+            passed = false;
+        }
+        assertFalse(passed);
     }
 
     @Test
-    public void testCurrentSecond() {
-        assertEquals(date.getCurrentSecond(), new DateTime(DateTimeZone.UTC).getSecondOfMinute());
+    public void testSecond() {
+        assertEquals(date.getSecond(), new DateTime(DateTimeZone.UTC).getSecondOfMinute());
+        assertEquals(date.getSecond("2017-02-04T12:02:10"), 10);
+        assertEquals(date.getSecond("2017-02-04"), 0);
+
+        boolean passed;
+        try {
+            date.getSecond("2017-02-0");
+            date.getSecond("2017-02-04T23");
+            date.getSecond("");
+            date.getSecond(null);
+            passed = true;
+        } catch (AssertionError e) {
+            passed = false;
+        }
+        assertFalse(passed);
     }
 }
