@@ -154,4 +154,34 @@ public class DateHandlerTest {
         assertEquals(dateHandler.minus("2017-01-01T01:00:00", "2d"), "2016-12-30T01:00:00");
         assertEquals(dateHandler.minus("2017-01-01T01:00:00", "2d2h"), "2016-12-29T23:00:00");
     }
+
+    @Test
+    public void testCurrentYear() {
+        assertEquals(date.getCurrentYear(), new DateTime(DateTimeZone.UTC).getYear());
+    }
+
+    @Test
+    public void testCurrentMonth() {
+        assertEquals(date.getCurrentMonth(), new DateTime(DateTimeZone.UTC).getMonthOfYear());
+    }
+
+    @Test
+    public void testCurrentDay() {
+        assertEquals(date.getCurrentDay(), new DateTime(DateTimeZone.UTC).getDayOfMonth());
+    }
+
+    @Test
+    public void testCurrentHour() {
+        assertEquals(date.getCurrentHour(), new DateTime(DateTimeZone.UTC).getHourOfDay());
+    }
+
+    @Test
+    public void testCurrentMinute() {
+        assertEquals(date.getCurrentMinute(), new DateTime(DateTimeZone.UTC).getMinuteOfHour());
+    }
+
+    @Test
+    public void testCurrentSecond() {
+        assertEquals(date.getCurrentSecond(), new DateTime(DateTimeZone.UTC).getSecondOfMinute());
+    }
 }

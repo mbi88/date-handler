@@ -222,6 +222,60 @@ public final class DateHandler {
     }
 
     /**
+     * Returns current year.
+     *
+     * @return current year.
+     */
+    public int getCurrentYear() {
+        return new DateTime(dateTimeZone).getYear();
+    }
+
+    /**
+     * Returns current month.
+     *
+     * @return current month.
+     */
+    public int getCurrentMonth() {
+        return new DateTime(dateTimeZone).getMonthOfYear();
+    }
+
+    /**
+     * Returns current day.
+     *
+     * @return current day.
+     */
+    public int getCurrentDay() {
+        return new DateTime(dateTimeZone).getDayOfMonth();
+    }
+
+    /**
+     * Returns current hour.
+     *
+     * @return current hour.
+     */
+    public int getCurrentHour() {
+        return new DateTime(dateTimeZone).getHourOfDay();
+    }
+
+    /**
+     * Returns current minute.
+     *
+     * @return current minute.
+     */
+    public int getCurrentMinute() {
+        return new DateTime(dateTimeZone).getMinuteOfHour();
+    }
+
+    /**
+     * Returns current second.
+     *
+     * @return current second.
+     */
+    public int getCurrentSecond() {
+        return new DateTime(dateTimeZone).getSecondOfMinute();
+    }
+
+    /**
      * If passed date format matches expected.
      *
      * @param date date format for check.
