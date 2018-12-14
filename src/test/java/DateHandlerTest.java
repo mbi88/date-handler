@@ -89,8 +89,11 @@ public class DateHandlerTest {
         assertEquals(DateTime.parse(newDt).getSecondOfMinute(),
                 DateTime.parse(dateHandler.getCurrentDateTime()).getSecondOfMinute() + 1);
 
+        int expectedMonth = (DateTime.parse(newDt).getMonthOfYear() > 10)
+                ? DateTime.parse(newDt).getMonthOfYear() - 12
+                : DateTime.parse(newDt).getMonthOfYear();
         newDt = dateHandler.plus("2M");
-        assertEquals(DateTime.parse(newDt).getMonthOfYear(), DateTime.parse(currentDt).getMonthOfYear() + 2);
+        assertEquals(DateTime.parse(newDt).getMonthOfYear(), expectedMonth + 2);
 
         assertEquals(date.plus("2017-01-01T01:00:00", "2d2h"), "2017-01-03T03:00:00");
         assertEquals(dateHandler.plus("2017-01-01T01:00:00", "2d2h"), "2017-01-03T03:00:00");
