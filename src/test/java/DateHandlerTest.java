@@ -105,6 +105,23 @@ public class DateHandlerTest {
     }
 
     @Test
+    public void testPlusMonth() {
+        DateHandler dateHandler = new DateHandler(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Kiev")));
+        String currentDt = dateHandler.getCurrentDateTime();
+        String newDt;
+
+        for (int plusMonth = 0; plusMonth < 50; plusMonth++) {
+            int compensator = 12 * (plusMonth / 12);
+            newDt = dateHandler.plus(plusMonth + "M");
+            int expectedMonth = ((DateTime.parse(currentDt).getMonthOfYear() + plusMonth) > 12
+                    ? DateTime.parse(currentDt).getMonthOfYear() + plusMonth - compensator
+                    : DateTime.parse(currentDt).getMonthOfYear() + plusMonth);
+
+            assertEquals(DateTime.parse(newDt).getMonthOfYear(), expectedMonth);
+        }
+    }
+
+    @Test
     public void testFormulaFormat() {
         boolean passed;
         try {
@@ -146,9 +163,6 @@ public class DateHandlerTest {
         assertEquals(DateTime.parse(newDt).getSecondOfMinute(),
                 DateTime.parse(dateHandler.getCurrentDateTime()).getSecondOfMinute() - 1);
 
-        newDt = dateHandler.minus("2M");
-        assertEquals(DateTime.parse(newDt).getMonthOfYear(), DateTime.parse(currentDt).getMonthOfYear() - 2);
-
         assertEquals(date.minus("2017-01-01T01:00:00", "2d2h"), "2016-12-29T23:00:00");
         assertEquals(dateHandler.minus("2017-01-01T01:00:00", "2d2h"), "2016-12-29T23:00:00");
 
@@ -156,6 +170,23 @@ public class DateHandlerTest {
         assertEquals(dateHandler.minus("2017-01-01", "2d"), "2016-12-30");
         assertEquals(dateHandler.minus("2017-01-01T01:00:00", "2d"), "2016-12-30T01:00:00");
         assertEquals(dateHandler.minus("2017-01-01T01:00:00", "2d2h"), "2016-12-29T23:00:00");
+    }
+
+    @Test
+    public void testMinusMonth() {
+        DateHandler dateHandler = new DateHandler(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Kiev")));
+        String currentDt = dateHandler.getCurrentDateTime();
+        String newDt;
+
+        for (int minusMonth = 0; minusMonth < 50; minusMonth++) {
+            int compensator = 12 * (minusMonth / 12 + ((minusMonth % 12) == 0 ? 0 : 1));
+            newDt = dateHandler.minus(minusMonth + "M");
+            int expectedMonth = ((DateTime.parse(currentDt).getMonthOfYear() - minusMonth) <= 0
+                    ? DateTime.parse(currentDt).getMonthOfYear() - minusMonth + compensator
+                    : DateTime.parse(currentDt).getMonthOfYear() - minusMonth);
+
+            assertEquals(DateTime.parse(newDt).getMonthOfYear(), expectedMonth);
+        }
     }
 
     @Test
