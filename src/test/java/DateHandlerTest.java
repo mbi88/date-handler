@@ -111,11 +111,12 @@ public class DateHandlerTest {
         String newDt;
 
         for (int plusMonth = 0; plusMonth < 50; plusMonth++) {
-            int compensator = 12 * (plusMonth / 12);
             newDt = dateHandler.plus(plusMonth + "M");
+            int compensator = 12 * ((DateTime.parse(currentDt).getMonthOfYear() + plusMonth) / 12);
             int expectedMonth = ((DateTime.parse(currentDt).getMonthOfYear() + plusMonth) > 12
                     ? DateTime.parse(currentDt).getMonthOfYear() + plusMonth - compensator
                     : DateTime.parse(currentDt).getMonthOfYear() + plusMonth);
+            expectedMonth = expectedMonth == 0 ? 12 : expectedMonth;
 
             assertEquals(DateTime.parse(newDt).getMonthOfYear(), expectedMonth);
         }
@@ -179,11 +180,15 @@ public class DateHandlerTest {
         String newDt;
 
         for (int minusMonth = 0; minusMonth < 50; minusMonth++) {
-            int compensator = 12 * (minusMonth / 12 + ((minusMonth % 12) == 0 ? 0 : 1));
             newDt = dateHandler.minus(minusMonth + "M");
-            int expectedMonth = ((DateTime.parse(currentDt).getMonthOfYear() - minusMonth) <= 0
-                    ? DateTime.parse(currentDt).getMonthOfYear() - minusMonth + compensator
-                    : DateTime.parse(currentDt).getMonthOfYear() - minusMonth);
+            int expectedMonth = DateTime.parse(currentDt).getMonthOfYear() - (minusMonth % 12);
+            if (expectedMonth == 0) {
+                expectedMonth = 12;
+            } else if (expectedMonth < 0) {
+                expectedMonth = (DateTime.parse(currentDt).getMonthOfYear() - (minusMonth % 12)) + 12;
+            } else {
+                expectedMonth = (DateTime.parse(currentDt).getMonthOfYear() - (minusMonth % 12));
+            }
 
             assertEquals(DateTime.parse(newDt).getMonthOfYear(), expectedMonth);
         }
