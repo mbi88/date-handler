@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Converts time period formula to custom date time object. Formula example: "1y2M3d4h5m6s"
@@ -38,7 +39,7 @@ final class DateTimeParser {
             throw new IllegalArgumentException("Invalid date time format: should start with digit and end with letter");
         }
 
-        final var map = new HashMap<String, Integer>();
+        final Map<String, Integer> map = new HashMap<>();
         // Split by digits and letters
         final var list = Arrays.asList(dt.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)"));
         for (int i = 0; i < list.size(); i = i + 2) {
