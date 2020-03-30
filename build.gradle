@@ -10,12 +10,13 @@ apply plugin: 'jacoco'
 def suitesDir = 'src/test/resources/suites/'
 
 repositories {
-    maven { url "http://repo.maven.apache.org/maven2" }
+    mavenCentral()
+    jcenter()
 }
 
 dependencies {
     implementation group: 'joda-time', name: 'joda-time', version: '2.10.5'
-    implementation group: 'org.testng', name: 'testng', version: '7.1.0'
+    implementation group: 'org.testng', name: 'testng', version: '7.2.0'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.2'
 }
 
