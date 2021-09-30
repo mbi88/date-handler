@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'joda-time', name: 'joda-time', version: '2.10.10'
+    implementation group: 'joda-time', name: 'joda-time', version: '2.10.12'
     implementation group: 'org.testng', name: 'testng', version: '7.4.0'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.5'
 }
