@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     implementation("org.testng:testng:7.9.0")
-    implementation("joda-time:joda-time:2.12.6")
+    implementation("joda-time:joda-time:2.12.7")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.16.1")
 }
 
