@@ -2,7 +2,6 @@ import com.mbi.DateHandler;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.testng.annotations.Test;
 
 import java.util.TimeZone;
@@ -78,7 +77,7 @@ public class DateHandlerTest {
     public void testPlus() {
         var dateHandler = new DateHandler(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Kiev")));
         var currentDt = dateHandler.getCurrentDateTime();
-        var newDt = dateHandler.plus("2y2m1s");
+        var newDt = dateHandler.plus(currentDt, "2y2m1s");
 
         assertEquals(DateTime.parse(newDt).getYear(), DateTime.parse(currentDt).getYear() + 2);
         assertEquals(DateTime.parse(newDt).getMonthOfYear(), DateTime.parse(currentDt).getMonthOfYear());
@@ -86,8 +85,7 @@ public class DateHandlerTest {
         assertEquals(DateTime.parse(newDt).getMinuteOfHour(), DateTime.parse(currentDt).getMinuteOfHour() + 2,
                 "Ignore if expected = 61 but actual = 1");
         assertEquals(DateTime.parse(newDt).getHourOfDay(), DateTime.parse(currentDt).getHourOfDay());
-        assertEquals(DateTime.parse(newDt).getSecondOfMinute(),
-                DateTime.parse(dateHandler.getCurrentDateTime()).getSecondOfMinute() + 1);
+        assertEquals(DateTime.parse(newDt).getSecondOfMinute(), DateTime.parse(currentDt).getSecondOfMinute() + 1);
 
         int expectedMonth = (DateTime.parse(newDt).getMonthOfYear() > 10)
                 ? DateTime.parse(newDt).getMonthOfYear() - 12
@@ -124,28 +122,25 @@ public class DateHandlerTest {
 
     @Test
     public void testFormulaFormat() {
-        boolean passed;
+        boolean passed = false;
         try {
             date.plus("21");
             passed = true;
-        } catch (IllegalArgumentException e) {
-            passed = false;
+        } catch (IllegalArgumentException ignored) {
         }
         assertFalse(passed);
 
         try {
             date.plus("d21");
             passed = true;
-        } catch (IllegalArgumentException e) {
-            passed = false;
+        } catch (IllegalArgumentException ignored) {
         }
         assertFalse(passed);
 
         try {
             date.plus("21dasds");
             passed = true;
-        } catch (IllegalArgumentException e) {
-            passed = false;
+        } catch (IllegalArgumentException ignored) {
         }
         assertFalse(passed);
     }
@@ -154,7 +149,7 @@ public class DateHandlerTest {
     public void testMinus() {
         var dateHandler = new DateHandler(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Kiev")));
         var currentDt = dateHandler.getCurrentDateTime();
-        var newDt = dateHandler.minus("2y2m1s");
+        var newDt = dateHandler.minus(currentDt, "2y2m1s");
 
         assertEquals(DateTime.parse(newDt).getYear(), DateTime.parse(currentDt).getYear() - 2);
         assertEquals(DateTime.parse(newDt).getMonthOfYear(), DateTime.parse(currentDt).getMonthOfYear());
@@ -162,7 +157,7 @@ public class DateHandlerTest {
         assertEquals(DateTime.parse(newDt).getMinuteOfHour(), DateTime.parse(currentDt).getMinuteOfHour() - 2);
         assertEquals(DateTime.parse(newDt).getHourOfDay(), DateTime.parse(currentDt).getHourOfDay());
         assertEquals(DateTime.parse(newDt).getSecondOfMinute(),
-                DateTime.parse(dateHandler.getCurrentDateTime()).getSecondOfMinute() - 1);
+                DateTime.parse(currentDt).getSecondOfMinute() - 1);
 
         assertEquals(date.minus("2017-01-01T01:00:00", "2d2h"), "2016-12-29T23:00:00");
         assertEquals(dateHandler.minus("2017-01-01T01:00:00", "2d2h"), "2016-12-29T23:00:00");
