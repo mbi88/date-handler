@@ -1,7 +1,9 @@
 [![Java CI with Gradle](https://github.com/mbi88/date-handler/actions/workflows/gradle.yml/badge.svg)](https://github.com/mbi88/date-handler/actions/workflows/gradle.yml)
 [![codecov](https://codecov.io/gh/mbi88/date-handler/branch/master/graph/badge.svg)](https://codecov.io/gh/mbi88/date-handler)
 [![Latest Version](https://img.shields.io/github/v/tag/mbi88/date-handler?label=version)](https://github.com/mbi88/date-handler/releases)
+[![jitpack](https://jitpack.io/v/mbi88/date-handler.svg)](https://jitpack.io/#mbi88/date-handler)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 
 ---
 
