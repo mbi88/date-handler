@@ -2,54 +2,56 @@ import com.mbi.DateHandler;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.testng.annotations.Test;
 
 import java.util.TimeZone;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.*;
 
 public class DateHandlerTest {
 
     private final DateHandler date = new DateHandler();
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
+    private final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+    private final DateTimeZone kyivZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Kiev"));
 
     @Test
     public void testDefaultConstructor() {
         var date = new DateHandler();
-        var dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
-        var dt = new DateTime(DateTimeZone.UTC);
+        var now = DateTime.now(DateTimeZone.UTC);
 
-        assertEquals(date.getCurrentDateTime(), dateFormatter.print(dt));
+        assertEquals(date.getCurrentDateTime(), dateTimeFormatter.print(now));
     }
 
     @Test
     public void testConstructorWithTimeZone() {
-        var date = new DateHandler(DateTimeZone.getDefault());
-        var dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
-        var dt = new DateTime(DateTimeZone.getDefault());
+        var date = new DateHandler(kyivZone);
+        var now = DateTime.now(kyivZone);
 
-        assertEquals(date.getCurrentDateTime(), dateFormatter.print(dt));
+        assertEquals(date.getCurrentDateTime(), dateTimeFormatter.print(now));
     }
 
     @Test
-    public void testCurrentDate() {
-        var dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
-        var dt = new DateTime(DateTimeZone.UTC);
+    public void testGetCurrentDate() {
+        var now = DateTime.now(DateTimeZone.UTC);
 
-        assertEquals(date.getCurrentDate(), dateFormatter.print(dt));
+        assertEquals(date.getCurrentDate(), dateFormatter.print(now));
     }
 
     @Test
     public void testCurrentDateTime() {
-        var dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
-        var dt = new DateTime(DateTimeZone.UTC);
+        var now = DateTime.now(DateTimeZone.UTC);
 
-        assertEquals(date.getCurrentDateTime(), dateFormatter.print(dt));
+        assertEquals(date.getCurrentDateTime(), dateTimeFormatter.print(now));
+    }
 
-        dt = new DateTime(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Kiev")));
-        var dh = new DateHandler(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Kiev")));
+    @Test
+    public void testCurrentDateTimeInCustomZone() {
+        var now = DateTime.now(kyivZone);
+        var dh = new DateHandler(kyivZone);
 
-        assertEquals(dh.getCurrentDateTime(), dateFormatter.print(dt));
+        assertEquals(dh.getCurrentDateTime(), dateTimeFormatter.print(now));
     }
 
     @Test
@@ -62,7 +64,7 @@ public class DateHandlerTest {
 
     @Test
     public void testDayOfWeek() {
-        assertEquals(date.getDayOfWeek(), new DateTime(DateTimeZone.UTC).dayOfWeek().getAsText());
+        assertEquals(date.getDayOfWeek(), DateTime.now(DateTimeZone.UTC).dayOfWeek().getAsText());
         assertEquals(date.getDayOfWeek("2018-03-20"), "Tuesday");
     }
 
@@ -75,7 +77,7 @@ public class DateHandlerTest {
 
     @Test
     public void testPlus() {
-        var dateHandler = new DateHandler(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Kiev")));
+        var dateHandler = new DateHandler(kyivZone);
         var currentDt = dateHandler.getCurrentDateTime();
         var newDt = dateHandler.plus(currentDt, "2y2m1s");
 
@@ -104,7 +106,7 @@ public class DateHandlerTest {
 
     @Test
     public void testPlusMonth() {
-        var dateHandler = new DateHandler(DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Kiev")));
+        var dateHandler = new DateHandler(kyivZone);
         var currentDt = dateHandler.getCurrentDateTime();
         String newDt;
 
@@ -122,27 +124,9 @@ public class DateHandlerTest {
 
     @Test
     public void testFormulaFormat() {
-        boolean passed = false;
-        try {
-            date.plus("21");
-            passed = true;
-        } catch (IllegalArgumentException ignored) {
-        }
-        assertFalse(passed);
-
-        try {
-            date.plus("d21");
-            passed = true;
-        } catch (IllegalArgumentException ignored) {
-        }
-        assertFalse(passed);
-
-        try {
-            date.plus("21dasds");
-            passed = true;
-        } catch (IllegalArgumentException ignored) {
-        }
-        assertFalse(passed);
+        assertThrows(IllegalArgumentException.class, () -> date.plus("21"));
+        assertThrows(IllegalArgumentException.class, () -> date.plus("d21"));
+        assertThrows(IllegalArgumentException.class, () -> date.plus("21dasds"));
     }
 
     @Test
@@ -195,15 +179,8 @@ public class DateHandlerTest {
         assertEquals(date.getYear("2017-02-04T12:02:10"), 2017);
         assertEquals(date.getYear("2017-02-04"), 2017);
 
-        boolean passed;
-        try {
-            date.getYear("2017-02-0");
-            date.getYear("2017-02-04T23");
-            passed = true;
-        } catch (AssertionError e) {
-            passed = false;
-        }
-        assertFalse(passed);
+        assertThrows(AssertionError.class, () -> date.getYear("2017-02-0"));
+        assertThrows(AssertionError.class, () -> date.getYear("2017-02-04T23"));
     }
 
     @Test
@@ -212,15 +189,8 @@ public class DateHandlerTest {
         assertEquals(date.getMonth("2017-02-04T12:02:10"), 2);
         assertEquals(date.getMonth("2017-02-04"), 2);
 
-        boolean passed;
-        try {
-            date.getMonth("2017-02-0");
-            date.getMonth("2017-02-04T23");
-            passed = true;
-        } catch (AssertionError e) {
-            passed = false;
-        }
-        assertFalse(passed);
+        assertThrows(AssertionError.class, () -> date.getMonth("2017-02-0"));
+        assertThrows(AssertionError.class, () -> date.getMonth("2017-02-04T23"));
     }
 
     @Test
@@ -229,15 +199,8 @@ public class DateHandlerTest {
         assertEquals(date.getDay("2017-02-04T12:02:10"), 4);
         assertEquals(date.getDay("2017-02-04"), 4);
 
-        boolean passed;
-        try {
-            date.getDay("2017-02-0");
-            date.getDay("2017-02-04T23");
-            passed = true;
-        } catch (AssertionError e) {
-            passed = false;
-        }
-        assertFalse(passed);
+        assertThrows(AssertionError.class, () -> date.getDay("2017-02-0"));
+        assertThrows(AssertionError.class, () -> date.getDay("2017-02-04T23"));
     }
 
     @Test
@@ -246,15 +209,8 @@ public class DateHandlerTest {
         assertEquals(date.getHour("2017-02-04T12:02:10"), 12);
         assertEquals(date.getHour("2017-02-04"), 0);
 
-        boolean passed;
-        try {
-            date.getHour("2017-02-0");
-            date.getHour("2017-02-04T23");
-            passed = true;
-        } catch (AssertionError e) {
-            passed = false;
-        }
-        assertFalse(passed);
+        assertThrows(AssertionError.class, () -> date.getHour("2017-02-0"));
+        assertThrows(AssertionError.class, () -> date.getHour("2017-02-04T23"));
     }
 
     @Test
@@ -263,15 +219,8 @@ public class DateHandlerTest {
         assertEquals(date.getMinute("2017-02-04T12:02:10"), 2);
         assertEquals(date.getMinute("2017-02-04"), 0);
 
-        boolean passed;
-        try {
-            date.getMinute("2017-02-0");
-            date.getMinute("2017-02-04T23");
-            passed = true;
-        } catch (AssertionError e) {
-            passed = false;
-        }
-        assertFalse(passed);
+        assertThrows(AssertionError.class, () -> date.getMinute("2017-02-0"));
+        assertThrows(AssertionError.class, () -> date.getMinute("2017-02-04T23"));
     }
 
     @Test
@@ -280,16 +229,29 @@ public class DateHandlerTest {
         assertEquals(date.getSecond("2017-02-04T12:02:10"), 10);
         assertEquals(date.getSecond("2017-02-04"), 0);
 
-        boolean passed;
-        try {
-            date.getSecond("2017-02-0");
-            date.getSecond("2017-02-04T23");
-            date.getSecond("");
-            date.getSecond(null);
-            passed = true;
-        } catch (AssertionError e) {
-            passed = false;
-        }
-        assertFalse(passed);
+        assertThrows(AssertionError.class, () -> date.getSecond("2017-02-0"));
+        assertThrows(AssertionError.class, () -> date.getSecond("2017-02-04T23"));
+        assertThrows(AssertionError.class, () -> date.getSecond(""));
+        assertThrows(NullPointerException.class, () -> date.getSecond(null));
+    }
+
+    @Test
+    public void testCantParseNullFormula() {
+        var ex = expectThrows(IllegalArgumentException.class, () -> date.plus(null));
+        assertEquals(ex.getMessage(), "Formula must not be null or blank");
+    }
+
+    @Test
+    public void testCantParseEmptyFormula() {
+        var ex = expectThrows(IllegalArgumentException.class, () -> date.plus(""));
+        assertEquals(ex.getMessage(), "Formula must not be null or blank");
+    }
+
+    @Test
+    public void testCantParseUnknownFormulaField() {
+        var ex = expectThrows(IllegalArgumentException.class, () -> date.plus("2y2m1dd"));
+        assertEquals(ex.getMessage(), """
+                Unrecognized field "dd" (class com.mbi.CustomDateTime), not marked as ignorable (6 known properties: "mo", "s", "d", "h", "y", "m"])
+                 at [Source: UNKNOWN; byte offset: #UNKNOWN] (through reference chain: com.mbi.CustomDateTime["dd"])""");
     }
 }

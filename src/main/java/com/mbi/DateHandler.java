@@ -55,8 +55,7 @@ public final class DateHandler {
      * @return current date.
      */
     public String getCurrentDate() {
-        final var dateTime = new DateTime(dateTimeZone);
-        return dateFormatter.print(dateTime);
+        return dateFormatter.print(new DateTime(dateTimeZone));
     }
 
     /**
@@ -65,8 +64,7 @@ public final class DateHandler {
      * @return current date time.
      */
     public String getCurrentDateTime() {
-        final var dateTime = new DateTime(dateTimeZone);
-        return dateTimeFormatter.print(dateTime);
+        return dateTimeFormatter.print(new DateTime(dateTimeZone));
     }
 
     /**
@@ -119,17 +117,7 @@ public final class DateHandler {
      *                                  period if unknown.
      */
     public String plus(final String formula) {
-        final var customDateTime = new DateTimeParser().parse(formula);
-        final var resultFormatter = isDate(customDateTime) ? dateFormatter : dateTimeFormatter;
-        final var dateTime = new DateTime(dateTimeZone);
-
-        return resultFormatter.print(dateTime
-                .plusYears(customDateTime.getY())
-                .plusMonths(customDateTime.getMo())
-                .plusDays(customDateTime.getD())
-                .plusHours(customDateTime.getH())
-                .plusMinutes(customDateTime.getM())
-                .plusSeconds(customDateTime.getS()));
+        return plus(dateTimeFormatter.print(DateTime.now(dateTimeZone)), formula);
     }
 
     /**
@@ -150,19 +138,12 @@ public final class DateHandler {
      *                                  period if unknown.
      */
     public String plus(final String start, final String formula) {
-        final var startFormatter = isDate(start) ? dateFormatter : dateTimeFormatter;
-        final var startDateTime = startFormatter.parseDateTime(start);
+        final var dateTime = new DateTimeParser().parse(formula);
+        final var formatter = isDate(start) ? dateFormatter : dateTimeFormatter;
+        final var startDateTime = formatter.parseDateTime(start);
+        final var resultFormatter = (isDate(dateTime) && isDate(start)) ? dateFormatter : dateTimeFormatter;
 
-        final var dt = new DateTimeParser().parse(formula);
-        final var resultFormatter = (isDate(dt) && isDate(start)) ? dateFormatter : dateTimeFormatter;
-
-        return resultFormatter.print(startDateTime
-                .plusYears(dt.getY())
-                .plusMonths(dt.getMo())
-                .plusDays(dt.getD())
-                .plusHours(dt.getH())
-                .plusMinutes(dt.getM())
-                .plusSeconds(dt.getS()));
+        return resultFormatter.print(applyOffset(startDateTime, dateTime, true));
     }
 
     /**
@@ -182,17 +163,7 @@ public final class DateHandler {
      *                                  period if unknown.
      */
     public String minus(final String formula) {
-        final var customDateTime = new DateTimeParser().parse(formula);
-        final var resultFormatter = isDate(customDateTime) ? dateFormatter : dateTimeFormatter;
-        final var dateTime = new DateTime(dateTimeZone);
-
-        return resultFormatter.print(dateTime
-                .minusYears(customDateTime.getY())
-                .minusMonths(customDateTime.getMo())
-                .minusDays(customDateTime.getD())
-                .minusHours(customDateTime.getH())
-                .minusMinutes(customDateTime.getM())
-                .minusSeconds(customDateTime.getS()));
+        return minus(dateTimeFormatter.print(DateTime.now(dateTimeZone)), formula);
     }
 
     /**
@@ -213,19 +184,12 @@ public final class DateHandler {
      *                                  period if unknown.
      */
     public String minus(final String start, final String formula) {
-        final var startFormatter = isDate(start) ? dateFormatter : dateTimeFormatter;
-        final var startDateTime = startFormatter.parseDateTime(start);
+        final var dateTime = new DateTimeParser().parse(formula);
+        final var formatter = isDate(start) ? dateFormatter : dateTimeFormatter;
+        final var startDateTime = formatter.parseDateTime(start);
+        final var resultFormatter = (isDate(dateTime) && isDate(start)) ? dateFormatter : dateTimeFormatter;
 
-        final var dt = new DateTimeParser().parse(formula);
-        final var resultFormatter = (isDate(dt) && isDate(start)) ? dateFormatter : dateTimeFormatter;
-
-        return resultFormatter.print(startDateTime
-                .minusYears(dt.getY())
-                .minusMonths(dt.getMo())
-                .minusDays(dt.getD())
-                .minusHours(dt.getH())
-                .minusMinutes(dt.getM())
-                .minusSeconds(dt.getS()));
+        return resultFormatter.print(applyOffset(startDateTime, dateTime, false));
     }
 
     /**
@@ -245,11 +209,7 @@ public final class DateHandler {
      * @throws AssertionError if date format is incorrect.
      */
     public int getYear(final String date) {
-        assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
-
-        final var formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
-
-        return formatter.parseDateTime(date).getYear();
+        return parse(date).getYear();
     }
 
     /**
@@ -269,11 +229,7 @@ public final class DateHandler {
      * @throws AssertionError if date format is incorrect.
      */
     public int getMonth(final String date) {
-        assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
-
-        final var formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
-
-        return formatter.parseDateTime(date).getMonthOfYear();
+        return parse(date).getMonthOfYear();
     }
 
     /**
@@ -293,11 +249,7 @@ public final class DateHandler {
      * @throws AssertionError if date format is incorrect.
      */
     public int getDay(final String date) {
-        assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
-
-        final var formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
-
-        return formatter.parseDateTime(date).getDayOfMonth();
+        return parse(date).getDayOfMonth();
     }
 
     /**
@@ -317,11 +269,7 @@ public final class DateHandler {
      * @throws AssertionError if date format is incorrect.
      */
     public int getHour(final String date) {
-        assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
-
-        final var formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
-
-        return formatter.parseDateTime(date).getHourOfDay();
+        return parse(date).getHourOfDay();
     }
 
     /**
@@ -341,11 +289,7 @@ public final class DateHandler {
      * @throws AssertionError if date format is incorrect.
      */
     public int getMinute(final String date) {
-        assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
-
-        final var formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
-
-        return formatter.parseDateTime(date).getMinuteOfHour();
+        return parse(date).getMinuteOfHour();
     }
 
     /**
@@ -365,11 +309,7 @@ public final class DateHandler {
      * @throws AssertionError if date format is incorrect.
      */
     public int getSecond(final String date) {
-        assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
-
-        final var formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
-
-        return formatter.parseDateTime(date).getSecondOfMinute();
+        return parse(date).getSecondOfMinute();
     }
 
     /**
@@ -379,7 +319,7 @@ public final class DateHandler {
      * @return result of check.
      */
     private boolean isDate(final String date) {
-        return date.matches("^[0-9]{4}(-[0-9]{2}){2}$");
+        return date.matches("^\\d{4}(-\\d{2}){2}$");
     }
 
     /**
@@ -399,6 +339,41 @@ public final class DateHandler {
      * @return result of check.
      */
     private boolean isDateTime(final String dateTime) {
-        return dateTime.matches("^[0-9]{4}(-[0-9]{2}){2}T([0-9]{2}:){2}[0-9]{2}$");
+        return dateTime.matches("^\\d{4}(-\\d{2}){2}T(\\d{2}:){2}\\d{2}$");
+    }
+
+    /**
+     * Parses a date or datetime string into a Joda-Time {@link DateTime} object.
+     * <p>
+     * The method automatically detects the format (date or datetime) and throws an
+     * assertion error if the input does not match any of the supported formats.
+     *
+     * @param date the date or datetime string to parse, must be in format yyyy-MM-dd or yyyy-MM-dd'T'HH:mm:ss
+     * @return parsed {@link DateTime} object
+     * @throws AssertionError if the format is invalid
+     */
+    private DateTime parse(final String date) {
+        assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
+        final var formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
+        return formatter.parseDateTime(date);
+    }
+
+    /**
+     * Applies a custom date/time offset to the given base {@link DateTime}.
+     * <p>
+     * If {@code add} is true, the offset will be added; otherwise, it will be subtracted.
+     *
+     * @param base   the base {@link DateTime} to apply the offset to
+     * @param offset the {@link CustomDateTime} object containing the offset values
+     * @param add    true to add the offset, false to subtract it
+     * @return updated {@link DateTime} with the offset applied
+     */
+    private DateTime applyOffset(final DateTime base, final CustomDateTime offset, boolean add) {
+        return (add ? base.plusYears(offset.getY()) : base.minusYears(offset.getY()))
+                .plusMonths(add ? offset.getMo() : -offset.getMo())
+                .plusDays(add ? offset.getD() : -offset.getD())
+                .plusHours(add ? offset.getH() : -offset.getH())
+                .plusMinutes(add ? offset.getM() : -offset.getM())
+                .plusSeconds(add ? offset.getS() : -offset.getS());
     }
 }

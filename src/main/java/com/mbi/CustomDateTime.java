@@ -1,16 +1,26 @@
 package com.mbi;
 
 /**
- * Custom date time POJO.
+ * POJO representing a custom date-time duration.
+ * <p>
+ * Fields:
+ * <ul>
+ *     <li>y  - years</li>
+ *     <li>mo - months</li>
+ *     <li>d  - days</li>
+ *     <li>h  - hours</li>
+ *     <li>m  - minutes</li>
+ *     <li>s  - seconds</li>
+ * </ul>
  */
 final class CustomDateTime {
 
-    private int y;
-    private int mo;
-    private int d;
-    private int h;
-    private int m;
-    private int s;
+    private int y;   // years
+    private int mo;  // months
+    private int d;   // days
+    private int h;   // hours
+    private int m;   // minutes
+    private int s;   // seconds
 
     public int getY() {
         return y;

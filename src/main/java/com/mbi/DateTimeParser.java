@@ -7,7 +7,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Converts time period formula to custom date time object. Formula example: "1y2M3d4h5m6s"
+ * Parses duration formulas (e.g., "1y2M3d4h5m6s") into a {@link CustomDateTime} object.
+ * <p>
+ * Supported units:
+ * <ul>
+ *     <li>y - years</li>
+ *     <li>M - months</li>
+ *     <li>d - days</li>
+ *     <li>h - hours</li>
+ *     <li>m - minutes</li>
+ *     <li>s - seconds</li>
+ * </ul>
+ * <p>
+ * Example: "1y2M3d4h5m6s"
  * Where:
  * 1y - one year.
  * 2M - two months.
@@ -18,8 +30,10 @@ import java.util.Map;
  */
 final class DateTimeParser {
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     /**
-     * Parses date time string in format:
+     * Parses a time formula into a {@link CustomDateTime} object in format:
      * Years - y.
      * Months - M.
      * Days - d.
@@ -27,26 +41,34 @@ final class DateTimeParser {
      * Minutes - m.
      * Seconds - s.
      *
-     * @param formula date time.
-     * @return parsed object.
+     * @param formula string with time units (e.g., "1y2M3d4h5m6s")
+     * @return parsed custom datetime object
+     * @throws IllegalArgumentException if input format is invalid
      */
     public CustomDateTime parse(final String formula) {
-        // Object mapper can't deal with M (mo) and m (m)
-        final String dt = formula.replace("M", "mo");
-
-        // Date time should start with digit and end with letter
-        if (!dt.substring(0, 1).matches("\\d") || !dt.substring(dt.length() - 1).matches("\\pL")) {
-            throw new IllegalArgumentException("Invalid date time format: should start with digit and end with letter");
+        if (formula == null || formula.isBlank()) {
+            throw new IllegalArgumentException("Formula must not be null or blank");
         }
 
-        final Map<String, Integer> map = new HashMap<>();
-        // Split by digits and letters
-        final var list = Arrays.asList(dt.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)"));
-        for (int i = 0; i < list.size(); i = i + 2) {
+        // Normalize: replace 'M' (months) with 'mo' to avoid conflict with 'm' (minutes)
+        final String normalized = formula.replace("M", "mo");
+
+        // Must start with digit and end with letter
+        if (!Character.isDigit(normalized.charAt(0))
+                || !Character.isLetter(normalized.charAt(normalized.length() - 1))) {
+            throw new IllegalArgumentException("Invalid format: must start with digit and end with letter");
+        }
+
+        // Split into alternating number and unit tokens
+        final var parts = Arrays.asList(normalized.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)"));
+        final Map<String, Integer> result = new HashMap<>();
+        for (int i = 0; i < parts.size(); i += 2) {
             // Odd = key, even = value
-            map.put(list.get(i + 1), Integer.valueOf(list.get(i)));
+            final String number = parts.get(i);
+            final String unit = parts.get(i + 1);
+            result.put(unit, Integer.parseInt(number));
         }
 
-        return new ObjectMapper().convertValue(map, CustomDateTime.class);
+        return MAPPER.convertValue(result, CustomDateTime.class);
     }
 }
