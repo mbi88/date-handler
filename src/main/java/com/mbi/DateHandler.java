@@ -94,8 +94,8 @@ public final class DateHandler {
      * @return the absolute value of 1st date minus 2nd.
      */
     public int daysBetweenDates(final String startDate, final String endDate) {
-        final var start = dateFormatter.parseDateTime(startDate);
-        final var end = dateFormatter.parseDateTime(endDate);
+        final DateTime start = dateFormatter.parseDateTime(startDate);
+        final DateTime end = dateFormatter.parseDateTime(endDate);
 
         return Math.abs(Days.daysBetween(start.withTimeAtStartOfDay(), end.withTimeAtStartOfDay()).getDays());
     }
@@ -138,10 +138,11 @@ public final class DateHandler {
      *                                  period if unknown.
      */
     public String plus(final String start, final String formula) {
-        final var dateTime = new DateTimeParser().parse(formula);
-        final var formatter = isDate(start) ? dateFormatter : dateTimeFormatter;
-        final var startDateTime = formatter.parseDateTime(start);
-        final var resultFormatter = (isDate(dateTime) && isDate(start)) ? dateFormatter : dateTimeFormatter;
+        final CustomDateTime dateTime = new DateTimeParser().parse(formula);
+        final DateTimeFormatter formatter = isDate(start) ? dateFormatter : dateTimeFormatter;
+        final DateTime startDateTime = formatter.parseDateTime(start);
+        final DateTimeFormatter resultFormatter = (isDate(dateTime) && isDate(start))
+                ? dateFormatter : dateTimeFormatter;
 
         return resultFormatter.print(applyOffset(startDateTime, dateTime, true));
     }
@@ -184,10 +185,11 @@ public final class DateHandler {
      *                                  period if unknown.
      */
     public String minus(final String start, final String formula) {
-        final var dateTime = new DateTimeParser().parse(formula);
-        final var formatter = isDate(start) ? dateFormatter : dateTimeFormatter;
-        final var startDateTime = formatter.parseDateTime(start);
-        final var resultFormatter = (isDate(dateTime) && isDate(start)) ? dateFormatter : dateTimeFormatter;
+        final CustomDateTime dateTime = new DateTimeParser().parse(formula);
+        final DateTimeFormatter formatter = isDate(start) ? dateFormatter : dateTimeFormatter;
+        final DateTime startDateTime = formatter.parseDateTime(start);
+        final DateTimeFormatter resultFormatter = (isDate(dateTime) && isDate(start))
+                ? dateFormatter : dateTimeFormatter;
 
         return resultFormatter.print(applyOffset(startDateTime, dateTime, false));
     }
@@ -354,7 +356,7 @@ public final class DateHandler {
      */
     private DateTime parse(final String date) {
         assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
-        final var formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
+        final DateTimeFormatter formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
         return formatter.parseDateTime(date);
     }
 
@@ -368,7 +370,7 @@ public final class DateHandler {
      * @param add    true to add the offset, false to subtract it
      * @return updated {@link DateTime} with the offset applied
      */
-    private DateTime applyOffset(final DateTime base, final CustomDateTime offset, boolean add) {
+    private DateTime applyOffset(final DateTime base, final CustomDateTime offset, final boolean add) {
         return (add ? base.plusYears(offset.getY()) : base.minusYears(offset.getY()))
                 .plusMonths(add ? offset.getMo() : -offset.getMo())
                 .plusDays(add ? offset.getD() : -offset.getD())
