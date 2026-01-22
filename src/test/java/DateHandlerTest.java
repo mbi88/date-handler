@@ -4,6 +4,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.testng.annotations.Test;
+import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
 import java.util.TimeZone;
 
@@ -102,6 +103,25 @@ public class DateHandlerTest {
         assertEquals(dateHandler.plus("2017-01-01", "2d"), "2017-01-03");
         assertEquals(dateHandler.plus("2017-01-01T01:00:00", "2d"), "2017-01-03T01:00:00");
         assertEquals(dateHandler.plus("2017-01-01T01:00:00", "2d2h"), "2017-01-03T03:00:00");
+
+        // Expected = current date + 14 days + 5 hours: 2025-01-15T05:00:00 (if today is 2025-01-01)
+        assertEquals(new DateHandler(DateTimeZone.UTC).plus("14d5h"),
+                dateTimeFormatter.print(dateTimeFormatter.parseDateTime(dateFormatter.print(DateTime.now(DateTimeZone.UTC).plusDays(14)) + "T00:00:00").plusHours(5)));
+
+        // Expected = current date + 14 days: 2025-01-15 (if today is 2025-01-01)
+        assertEquals(new DateHandler().plus("14d"), dateFormatter.print(DateTime.now().plusDays(14)));
+
+        // Expected = 2025-01-01 + 14 days + 5 hours: 2025-01-15T05:00:00
+        assertEquals(new DateHandler(DateTimeZone.UTC).plus("2025-01-01", "14d5h"), "2025-01-15T05:00:00");
+
+        // Expected = 2025-01-01 + 14 days: 2025-01-15
+        assertEquals(new DateHandler(DateTimeZone.UTC).plus("2025-01-01", "14d"), "2025-01-15");
+
+        // Expected = 2025-01-01T01:00:01 + 14 days + 5 hours: 2025-01-15T05:00:01
+        assertEquals(new DateHandler(DateTimeZone.UTC).plus("2025-01-01T01:00:01", "14d5h"), "2025-01-15T06:00:01");
+
+        // Expected = 2025-01-01T01:00:01 + 14 days: 2025-01-15T01:00:01
+        assertEquals(new DateHandler(DateTimeZone.UTC).plus("2025-01-01T01:00:01", "14d"), "2025-01-15T01:00:01");
     }
 
     @Test
@@ -126,7 +146,7 @@ public class DateHandlerTest {
     public void testFormulaFormat() {
         assertThrows(IllegalArgumentException.class, () -> date.plus("21"));
         assertThrows(IllegalArgumentException.class, () -> date.plus("d21"));
-        assertThrows(IllegalArgumentException.class, () -> date.plus("21dasds"));
+        assertThrows(UnrecognizedPropertyException.class, () -> date.plus("21dasds"));
     }
 
     @Test
@@ -150,6 +170,25 @@ public class DateHandlerTest {
         assertEquals(dateHandler.minus("2017-01-01", "2d"), "2016-12-30");
         assertEquals(dateHandler.minus("2017-01-01T01:00:00", "2d"), "2016-12-30T01:00:00");
         assertEquals(dateHandler.minus("2017-01-01T01:00:00", "2d2h"), "2016-12-29T23:00:00");
+
+        // Expected = current date - 14 days - 5 hours: 2025-01-05T19:00:00 (if today is 2025-01-20)
+        assertEquals(new DateHandler(DateTimeZone.UTC).minus("14d5h"),
+                dateTimeFormatter.print(dateTimeFormatter.parseDateTime(dateFormatter.print(DateTime.now(DateTimeZone.UTC).minusDays(14)) + "T00:00:00").minusHours(5)));
+
+        // Expected = current date - 14 days: 2025-01-06 (if today is 2025-01-20)
+        assertEquals(new DateHandler().minus("14d"), dateFormatter.print(DateTime.now().minusDays(14)));
+
+        // Expected = 2025-01-20 - 14 days - 5 hours: 2025-01-05T19:00:00
+        assertEquals(new DateHandler(DateTimeZone.UTC).minus("2025-01-20", "14d5h"), "2025-01-05T19:00:00");
+
+        // Expected = 2025-01-20 - 14 days: 2025-01-06
+        assertEquals(new DateHandler(DateTimeZone.UTC).minus("2025-01-20", "14d"), "2025-01-06");
+
+        // Expected = 2025-01-20T01:00:01 - 14 days + 5 hours: 2025-01-05T20:00:01
+        assertEquals(new DateHandler(DateTimeZone.UTC).minus("2025-01-20T01:00:01", "14d5h"), "2025-01-05T20:00:01");
+
+        // Expected = 2025-01-20T01:00:01 - 14 days: 2025-01-06T01:00:01
+        assertEquals(new DateHandler(DateTimeZone.UTC).minus("2025-01-20T01:00:01", "14d"), "2025-01-06T01:00:01");
     }
 
     @Test
@@ -249,9 +288,35 @@ public class DateHandlerTest {
 
     @Test
     public void testCantParseUnknownFormulaField() {
-        var ex = expectThrows(IllegalArgumentException.class, () -> date.plus("2y2m1dd"));
+        var ex = expectThrows(UnrecognizedPropertyException.class, () -> date.plus("2y2m1dd"));
         assertEquals(ex.getMessage(), """
-                Unrecognized field "dd" (class com.mbi.CustomDateTime), not marked as ignorable (6 known properties: "mo", "s", "d", "h", "y", "m"])
-                 at [Source: UNKNOWN; byte offset: #UNKNOWN] (through reference chain: com.mbi.CustomDateTime["dd"])""");
+                Unrecognized property "dd" (class com.mbi.CustomDateTime), not marked as ignorable (6 known properties: "y", "mo", "d", "h", "m", "s")
+                 at [No location information] (through reference chain: com.mbi.CustomDateTime["dd"])""");
+    }
+
+    @Test
+    public void testGetDayInWeek() {
+        assertEquals(date.getDayInWeek("2025-01-15", "Monday"), "2025-01-13");
+        assertEquals(date.getDayInWeek("2025-01-15", "Wednesday"), "2025-01-15");
+        assertEquals(date.getDayInWeek("2025-01-15", "Thursday"), "2025-01-16");
+        assertEquals(date.getDayInWeek("2025-01-15", "Sunday"), "2025-01-19");
+        assertEquals(date.getDayInWeek("2025-01-15T23:21:12", "Sunday"), "2025-01-19");
+    }
+
+    @Test
+    public void testGetStartOfWeek() {
+        assertEquals(date.getStartOfWeek("2025-01-15"), "2025-01-13");
+        assertEquals(date.getStartOfWeek("2025-01-13"), "2025-01-13");
+        assertEquals(date.getStartOfWeek("2025-01-12"), "2025-01-06");
+        assertEquals(date.getStartOfWeek("2025-01-12T23:21:12"), "2025-01-06");
+    }
+
+    @Test
+    public void testGetEndOfWeek() {
+        assertEquals(date.getEndOfWeek("2025-01-15"), "2025-01-19");
+        assertEquals(date.getEndOfWeek("2025-01-13"), "2025-01-19");
+        assertEquals(date.getEndOfWeek("2025-01-12"), "2025-01-12");
+        assertEquals(date.getEndOfWeek("2025-01-11"), "2025-01-12");
+        assertEquals(date.getEndOfWeek("2025-01-11T23:21:12"), "2025-01-12");
     }
 }

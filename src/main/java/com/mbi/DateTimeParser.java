@@ -1,10 +1,12 @@
 package com.mbi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,7 +33,10 @@ import java.util.Map;
  */
 final class DateTimeParser {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = JsonMapper
+            .builderWithJackson2Defaults()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
+            .build();
 
     /**
      * Parses a time formula into a {@link CustomDateTime} object in format:
@@ -61,7 +66,7 @@ final class DateTimeParser {
         }
 
         // Split into alternating number and unit tokens
-        final List<String> parts = Arrays.asList(normalized.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)"));
+        final var parts = Arrays.asList(normalized.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)"));
         final Map<String, Integer> result = new HashMap<>();
         for (int i = 0; i < parts.size(); i += 2) {
             // Odd = key, even = value

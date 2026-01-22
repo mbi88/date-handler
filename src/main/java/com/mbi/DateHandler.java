@@ -6,6 +6,9 @@ import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.time.DayOfWeek;
+import java.util.Locale;
+
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -94,8 +97,8 @@ public final class DateHandler {
      * @return the absolute value of 1st date minus 2nd.
      */
     public int daysBetweenDates(final String startDate, final String endDate) {
-        final DateTime start = dateFormatter.parseDateTime(startDate);
-        final DateTime end = dateFormatter.parseDateTime(endDate);
+        final var start = dateFormatter.parseDateTime(startDate);
+        final var end = dateFormatter.parseDateTime(endDate);
 
         return Math.abs(Days.daysBetween(start.withTimeAtStartOfDay(), end.withTimeAtStartOfDay()).getDays());
     }
@@ -117,7 +120,7 @@ public final class DateHandler {
      *                                  period if unknown.
      */
     public String plus(final String formula) {
-        return plus(dateTimeFormatter.print(DateTime.now(dateTimeZone)), formula);
+        return plus(dateFormatter.print(DateTime.now(dateTimeZone)), formula);
     }
 
     /**
@@ -138,13 +141,12 @@ public final class DateHandler {
      *                                  period if unknown.
      */
     public String plus(final String start, final String formula) {
-        final CustomDateTime dateTime = new DateTimeParser().parse(formula);
-        final DateTimeFormatter formatter = isDate(start) ? dateFormatter : dateTimeFormatter;
-        final DateTime startDateTime = formatter.parseDateTime(start);
-        final DateTimeFormatter resultFormatter = (isDate(dateTime) && isDate(start))
-                ? dateFormatter : dateTimeFormatter;
+        final var formulaDateTime = new DateTimeParser().parse(formula);
+        final var startFormatter = isDate(start) ? dateFormatter : dateTimeFormatter;
+        final var startDateTime = startFormatter.parseDateTime(start);
+        final var resultFormatter = (isDate(formulaDateTime) && isDate(start)) ? dateFormatter : dateTimeFormatter;
 
-        return resultFormatter.print(applyOffset(startDateTime, dateTime, true));
+        return resultFormatter.print(applyOffset(startDateTime, formulaDateTime, true));
     }
 
     /**
@@ -164,7 +166,7 @@ public final class DateHandler {
      *                                  period if unknown.
      */
     public String minus(final String formula) {
-        return minus(dateTimeFormatter.print(DateTime.now(dateTimeZone)), formula);
+        return minus(dateFormatter.print(DateTime.now(dateTimeZone)), formula);
     }
 
     /**
@@ -185,13 +187,12 @@ public final class DateHandler {
      *                                  period if unknown.
      */
     public String minus(final String start, final String formula) {
-        final CustomDateTime dateTime = new DateTimeParser().parse(formula);
-        final DateTimeFormatter formatter = isDate(start) ? dateFormatter : dateTimeFormatter;
-        final DateTime startDateTime = formatter.parseDateTime(start);
-        final DateTimeFormatter resultFormatter = (isDate(dateTime) && isDate(start))
-                ? dateFormatter : dateTimeFormatter;
+        final var formulaDateTime = new DateTimeParser().parse(formula);
+        final var startFormatter = isDate(start) ? dateFormatter : dateTimeFormatter;
+        final var startDateTime = startFormatter.parseDateTime(start);
+        final var resultFormatter = (isDate(formulaDateTime) && isDate(start)) ? dateFormatter : dateTimeFormatter;
 
-        return resultFormatter.print(applyOffset(startDateTime, dateTime, false));
+        return resultFormatter.print(applyOffset(startDateTime, formulaDateTime, false));
     }
 
     /**
@@ -315,6 +316,47 @@ public final class DateHandler {
     }
 
     /**
+     * Returns the start of the week (Monday) for the given date.
+     *
+     * @param date the reference date (format yyyy-MM-dd)
+     * @return the start of the week (Monday) in the same ISO week as the input date
+     */
+    public String getStartOfWeek(final String date) {
+        return getDayInWeek(date, "Monday");
+    }
+
+    /**
+     * Returns the end of the week (Sunday) for the given date.
+     *
+     * @param date the reference date (format yyyy-MM-dd)
+     * @return the end of the week (Sunday) in the same ISO week as the input date
+     */
+    public String getEndOfWeek(final String date) {
+        return getDayInWeek(date, "Sunday");
+    }
+
+    /**
+     * Returns the date of the specified day of the week in the same ISO week as the given date.
+     * <p>
+     * If the target day comes after the day of the given date, the result will be a future date.
+     * If it comes before, the result will be a past date. The result is always within the same ISO week
+     * (Monday to Sunday) as the input date.
+     *
+     * @param date      the reference date (format yyyy-MM-dd)
+     * @param targetDay the name of the day of the week (e.g., "Monday", "Saturday")
+     * @return the date of that day in the same ISO week as the input date
+     */
+    public String getDayInWeek(final String date, final String targetDay) {
+        final var inputDate = parse(date);
+        final var currentDay = inputDate.getDayOfWeek();
+        final var target = DayOfWeek.valueOf(targetDay.toUpperCase(Locale.getDefault()));
+
+        final int diff = target.getValue() - currentDay; // e.g. Saturday(6) - Thursday(4) = +2
+
+        return dateFormatter.print(inputDate.plusDays(diff));
+    }
+
+    /**
      * If passed date format matches expected.
      *
      * @param date date format for check.
@@ -356,7 +398,7 @@ public final class DateHandler {
      */
     private DateTime parse(final String date) {
         assertTrue(isDate(date) || isDateTime(date), INVALID_DATE_FORMAT_ERROR_MESSAGE);
-        final DateTimeFormatter formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
+        final var formatter = isDate(date) ? dateFormatter : dateTimeFormatter;
         return formatter.parseDateTime(date);
     }
 

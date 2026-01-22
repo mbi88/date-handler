@@ -1,16 +1,18 @@
+import com.github.spotbugs.snom.Effort
+import com.github.spotbugs.snom.SpotBugsReport
+import com.github.spotbugs.snom.SpotBugsTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
-    id("ru.vyarus.quality") version "6.0.1"
     id("java-library")
     id("jacoco")
     id("maven-publish")
+    id("code-quality")
+    id("com.github.spotbugs") version "6.4.8"
 }
 
 group = "com.mbi"
 version = "1.0"
-
-val suitesDir = "src/test/resources/suites"
 
 repositories {
     mavenCentral()
@@ -20,12 +22,13 @@ repositories {
 dependencies {
     implementation("org.testng:testng:7.11.0")
     implementation("joda-time:joda-time:2.14.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.20.0")
+    implementation("tools.jackson.core:jackson-databind:3.0.3")
 }
 
 tasks.test {
     useTestNG {
         // Automatically include all XML test suite files from suitesDir
+        val suitesDir = "src/test/resources/suites/"
         fileTree(suitesDir).matching { include("*.xml") }.files.forEach { suites(it) }
     }
 
@@ -53,16 +56,32 @@ tasks.withType<Javadoc> {
     (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:none", true)
 }
 
-quality {
-    // Enable all supported static analysis tools
-    checkstyle = true
-    pmd = true
-    codenarc = true
-    spotbugs = true
+spotbugs {
+    toolVersion.set("4.9.3")
+    effort.set(Effort.MAX)
+    excludeFilter.set(file("config/spotbugs/excludeFilter.xml"))
+}
+
+tasks.withType<SpotBugsTask>().configureEach {
+    val taskName = name
+    val html = reports.maybeCreate("html") as SpotBugsReport
+    html.required.set(true)
+    html.outputLocation.set(layout.buildDirectory.file("reports/spotbugs/$taskName.html"))
+}
+
+tasks {
+    named("checkstyleTest") { enabled = false }
+    named("pmdTest") { enabled = false }
+    named("spotbugsTest") { enabled = false }
 }
 
 tasks.check {
-    dependsOn(tasks.jacocoTestReport)
+    dependsOn(
+        tasks.jacocoTestReport,
+        tasks.checkstyleMain,
+        tasks.pmdMain,
+        tasks.spotbugsMain
+    )
 }
 
 publishing {
