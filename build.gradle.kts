@@ -22,7 +22,7 @@ repositories {
 dependencies {
     implementation("org.testng:testng:7.12.0")
     implementation("joda-time:joda-time:2.14.0")
-    implementation("tools.jackson.core:jackson-databind:3.0.3")
+    implementation("tools.jackson.core:jackson-databind:3.0.4")
 }
 
 tasks.test {
