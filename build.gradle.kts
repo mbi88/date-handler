@@ -21,8 +21,13 @@ repositories {
 
 dependencies {
     implementation("org.testng:testng:7.12.0")
+<<<<<<< HEAD
+    implementation("joda-time:joda-time:2.14.0")
+    implementation("tools.jackson.core:jackson-databind:3.1.2")
+=======
     implementation("joda-time:joda-time:2.14.2")
     implementation("tools.jackson.core:jackson-databind:3.0.4")
+>>>>>>> origin/master
 }
 
 tasks.test {
