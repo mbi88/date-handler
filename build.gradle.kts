@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     implementation("org.testng:testng:7.12.0")
-    implementation("tools.jackson.core:jackson-databind:3.1.2")
+    implementation("tools.jackson.core:jackson-databind:3.2.4")
     implementation("joda-time:joda-time:2.14.2")
 }
 
